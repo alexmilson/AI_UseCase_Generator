@@ -8,3 +8,4 @@ pandas
 openai
 openai-community
 openai-gpt
+python
