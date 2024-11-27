@@ -1,0 +1,8 @@
+streamlit==1.26.0
+beautifulsoup4==4.12.2
+requests==2.31.0
+transformers==4.33.0
+spacy==3.6.1
+numpy==1.25.2
+pandas==2.1.1
+matplotlib==3.7.2
