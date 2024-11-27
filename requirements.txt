@@ -6,7 +6,6 @@ sentence-transformers
 torch
 pandas
 openai
-openai-community
 openai-gpt
 python
 langchain
