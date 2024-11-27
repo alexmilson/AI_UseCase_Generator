@@ -12,3 +12,4 @@ python
 langchain
 gradio
 langchain_community
+pip
