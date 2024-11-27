@@ -6,3 +6,6 @@ sentence-transformers
 torch
 pandas
 thinc
+openai
+openai-community
+openai-gpt
