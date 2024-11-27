@@ -4,20 +4,31 @@ from agents.research_agent import get_industry_info
 from agents.usecase_agent import generate_use_cases
 from agents.resource_agent import fetch_resources
 
-# Streamlit UI
-st.title("AI Use Case Generator")
-company_name = st.text_input("Enter Company Name")
+# Streamlit UI setup
+st.set_page_config(page_title="AI Use Case Generator", page_icon=":guardsman:", layout="wide")
 
-if company_name:
-    st.write("Fetching industry information...")
-    industry_info = get_industry_info(company_name)
-    st.write(f"Industry: {industry_info['industry']}")
-    st.write(f"Details: {industry_info['details']}")
-    
-    st.write("Generating AI/ML use cases...")
-    use_cases = generate_use_cases(industry_info['industry'])
-    st.write(use_cases)
-    
-    st.write("Fetching resources...")
-    resources = fetch_resources(use_cases)
-    st.write(resources)
+st.title("AI Use Case Generator")
+
+# User input
+prompt = st.text_area("Enter the prompt for generation:", "AI in Healthcare")
+
+# Option to select type of generation
+generation_type = st.radio("Select Generation Type:", ("Industry Info", "Use Cases", "Resources"))
+
+# Generate button
+if st.button("Generate"):
+    if prompt:
+        if generation_type == "Industry Info":
+            generated_text = get_industry_info(prompt)
+            st.write("Generated Industry Info:")
+            st.write(generated_text)
+        elif generation_type == "Use Cases":
+            generated_text = generate_use_cases(prompt)
+            st.write("Generated Use Cases:")
+            st.write(generated_text)
+        elif generation_type == "Resources":
+            generated_text = fetch_resources(prompt)
+            st.write("Fetched Resources:")
+            st.write(generated_text)
+    else:
+        st.error("Please enter a prompt to generate content.")
