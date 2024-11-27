@@ -9,3 +9,6 @@ openai
 openai-community
 openai-gpt
 python
+langchain
+gradio
+langchain_community
