@@ -6,7 +6,6 @@ sentence-transformers
 torch
 pandas
 openai
-python
 langchain
 gradio
 langchain_community
