@@ -1,25 +1,28 @@
-from sentence_transformers import SentenceTransformer, util
-import pandas as pd
+# agents/resource_agent.py
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-def resource_agent(use_cases):
-    # Sample dataset metadata (replace with real dataset links)
-    datasets = pd.DataFrame({
-        "Name": ["Machine Sensor Data", "Customer Feedback", "Supply Chain Logs"],
-        "Link": ["https://kaggle.com/sensor-data", "https://huggingface.co/feedback-dataset", "https://github.com/supply-chain"],
-        "Description": [
-            "Sensor data for predicting machine failures",
-            "Customer feedback analysis for sentiment prediction",
-            "Logs of supply chain operations for efficiency optimization"
-        ]
-    })
+# Load the tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained("openai-community/openai-gpt")
+model = AutoModelForCausalLM.from_pretrained("openai-community/openai-gpt")
+
+def fetch_resources(prompt: str, max_length: int = 100):
+    """
+    Fetch relevant resources based on the given prompt.
     
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    case_embeddings = model.encode(use_cases)
-    dataset_embeddings = model.encode(datasets["Description"])
+    Args:
+        prompt (str): The input text to fetch related resources.
+        max_length (int): Maximum length of the generated output.
     
-    results = []
-    for i, case_emb in enumerate(case_embeddings):
-        similarities = util.pytorch_cos_sim(case_emb, dataset_embeddings)
-        top_idx = similarities.argmax().item()
-        results.append({"Use Case": use_cases[i], "Dataset": datasets.iloc[top_idx]["Link"]})
-    return results
+    Returns:
+        str: The fetched resources.
+    """
+    # Tokenize the input prompt
+    inputs = tokenizer(prompt, return_tensors="pt")
+    
+    # Generate the output text
+    outputs = model.generate(inputs['input_ids'], max_length=max_length, num_return_sequences=1, no_repeat_ngram_size=2)
+    
+    # Decode the generated text
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    return generated_text
