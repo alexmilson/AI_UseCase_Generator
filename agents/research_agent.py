@@ -1,31 +1,28 @@
-# research_agent.py
-from transformers import pipeline
-import requests
-from bs4 import BeautifulSoup
+# agents/research_agent.py
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-def get_industry_info(company_name):
+# Load the tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained("openai-community/openai-gpt")
+model = AutoModelForCausalLM.from_pretrained("openai-community/openai-gpt")
+
+def get_industry_info(prompt: str, max_length: int = 100):
     """
-    Fetches the industry and basic information about a company.
+    Generate industry information based on the given prompt.
     
     Args:
-        company_name (str): The name of the company to research.
+        prompt (str): The input text to generate industry-related information.
+        max_length (int): Maximum length of the generated output.
     
     Returns:
-        dict: A dictionary containing the industry and other details.
+        str: The generated industry information.
     """
-    search_query = f"{company_name} industry and operations"
-    response = requests.get(f"https://www.google.com/search?q={search_query}")
-    soup = BeautifulSoup(response.text, "html.parser")
-    # Extract basic information
-    descriptions = soup.find_all("div", class_="BNeawe s3v9rd AP7Wnd")
-    details = " ".join([desc.text for desc in descriptions[:3]])
+    # Tokenize the input prompt
+    inputs = tokenizer(prompt, return_tensors="pt")
     
-    # Use zero-shot classification to determine the industry
-    classifier = pipeline("zero-shot-classification", model="distilbert-base-uncased")
-    industries = ["Automotive", "Healthcare", "Finance", "Retail", "Manufacturing", "Technology"]
-    classification = classifier(details, industries)
+    # Generate the output text
+    outputs = model.generate(inputs['input_ids'], max_length=max_length, num_return_sequences=1, no_repeat_ngram_size=2)
     
-    return {
-        "industry": classification["labels"][0],
-        "details": details
-    }
+    # Decode the generated text
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    return generated_text
