@@ -124,4 +124,5 @@ if st.button("Generate") and company:
             
             st.success("Data Generated Successfully!")
         except Exception as e:
-            st.error(f"An error occurred: {e}") 
+            st.error(f"An error occurred: {e}")
+
