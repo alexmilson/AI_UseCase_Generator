@@ -1,12 +1,7 @@
 streamlit
-requests
-beautifulsoup4
-transformers
-sentence-transformers
-torch
-pandas
-openai
 langchain
-gradio
+llama-index
+huggingface-hub
+accelerate
 langchain_community
-pip
+duckduckgo-search
