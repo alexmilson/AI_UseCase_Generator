@@ -1,34 +1,65 @@
-# app.py
 import streamlit as st
-from agents.research_agent import get_industry_info
-from agents.usecase_agent import generate_use_cases
-from agents.resource_agent import fetch_resources
+from langchain_community.tools import DuckDuckGoSearchRun
+from huggingface_hub import InferenceClient
 
-# Streamlit UI setup
-st.set_page_config(page_title="AI Use Case Generator", page_icon=":guardsman:", layout="wide")
+# Initialize DuckDuckGoSearchRun and Hugging Face client
+search = DuckDuckGoSearchRun()
+client = InferenceClient(api_key="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")
 
+# Streamlit App
 st.title("AI Use Case Generator")
 
-# User input
-prompt = st.text_area("Enter the prompt for generation:", "AI in Healthcare")
+# Input field for company name
+company = st.text_input("Enter the Company Name:")
 
-# Option to select type of generation
-generation_type = st.radio("Select Generation Type:", ("Industry Info", "Use Cases", "Resources"))
+# Function to infer industry based on company name
+def infer_industry(company):
+    query = f"{company} industry"
+    results = search.invoke(query)
+    return results
 
-# Generate button
-if st.button("Generate"):
-    if prompt:
-        if generation_type == "Industry Info":
-            generated_text = get_industry_info(prompt)
-            st.write("Generated Industry Info:")
-            st.write(generated_text)
-        elif generation_type == "Use Cases":
-            generated_text = generate_use_cases(prompt)
-            st.write("Generated Use Cases:")
-            st.write(generated_text)
-        elif generation_type == "Resources":
-            generated_text = fetch_resources(prompt)
-            st.write("Fetched Resources:")
-            st.write(generated_text)
-    else:
-        st.error("Please enter a prompt to generate content.")
+# Function to generate AI/ML use cases based on the industry
+def generate_use_cases_with_hf(industry):
+    messages = [
+        {
+            "role": "user",
+            "content": f"Suggest relevant AI and GenAI use cases for the {industry} industry, focusing on operations, supply chain, and customer experience. Highlight actionable insights and potential challenges."
+        }
+    ]
+    
+    response = ""
+    with st.spinner("Generating use cases with Hugging Face LLM..."):
+        try:
+            stream = client.chat.completions.create(
+                model="mistralai/Mistral-7B-Instruct-v0.3",
+                messages=messages,
+                max_tokens=500,
+                stream=True
+            )
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:  # Avoid concatenating None
+                    response += delta
+        except Exception as e:
+            st.error(f"Error from Hugging Face model: {e}")
+            return "Use case generation failed."
+
+    return response.strip()
+
+# Streamlit Workflow
+if st.button("Generate") and company:
+    with st.spinner("Processing..."):
+        try:
+            # Step 1: Industry Insights
+            st.subheader("Industry Insights")
+            industry_info = infer_industry(company)
+            st.write(industry_info)
+
+            # Step 2: AI Use Cases
+            st.subheader("AI/ML Use Cases")
+            use_cases = generate_use_cases_with_hf(industry_info)
+            st.write(use_cases)
+
+            st.success("Data Generated Successfully!")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
