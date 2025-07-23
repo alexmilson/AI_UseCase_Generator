@@ -7,7 +7,7 @@ search = DuckDuckGoSearchRun()
 client = InferenceClient(api_key=st.secrets["HUGGINGFACE_KEY"])  # 👈 This pulls key from secrets.toml
 
 # Streamlit App
-st.title("AI Use Case Generator")
+st.title("Automated Industry-Specific AI Use Case Discovery Using Hybrid Web Search and Instruction-Tuned Language Model")
 
 # Input field for company name
 company = st.text_input("Enter the Company Name:")
